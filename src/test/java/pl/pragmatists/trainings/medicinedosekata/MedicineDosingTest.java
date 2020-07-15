@@ -1,29 +1,29 @@
 package pl.pragmatists.trainings.medicinedosekata;
 
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import pl.pragmatists.trainings.medicinedosekata.dependencies.*;
 
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class MedicineDosingTest {
+    @Mock
     private HealthMonitor healthMonitor;
+    @Mock
     private MedicinePump medicinePump;
+    @Mock
     private AlertService alertService;
-    private DoseController controller;
-
-    @BeforeEach
-    void setUp() {
-        healthMonitor = mock(HealthMonitor.class);
-        medicinePump = mock(MedicinePump.class);
-        alertService = mock(AlertService.class);
-        controller = new DoseController(healthMonitor, medicinePump, alertService);
-        when(medicinePump.getTimeSinceLastDoseInMinutes(any())).thenReturn(31);
-    }
+    @InjectMocks
+    DoseController controller;
 
     @Test
     void should_dose_medicine_when_blood_pressure_below_90() {
+        when(medicinePump.getTimeSinceLastDoseInMinutes(any())).thenReturn(31);
         when(healthMonitor.getSystolicBloodPressure()).thenReturn(89);
 
         controller.checkHealthAndApplyMedicine();
@@ -42,6 +42,7 @@ class MedicineDosingTest {
 
     @Test
     void should_dose_two_pressure_raising_medicine_when_blood_pressure_below_60() {
+        when(medicinePump.getTimeSinceLastDoseInMinutes(any())).thenReturn(31);
         when(healthMonitor.getSystolicBloodPressure()).thenReturn(59);
 
         controller.checkHealthAndApplyMedicine();
@@ -51,6 +52,7 @@ class MedicineDosingTest {
 
     @Test
     void should_dose_pressure_lowering_medicine_when_blood_pressure_above_150() {
+        when(medicinePump.getTimeSinceLastDoseInMinutes(any())).thenReturn(31);
         when(healthMonitor.getSystolicBloodPressure()).thenReturn(151);
 
         controller.checkHealthAndApplyMedicine();
@@ -60,6 +62,7 @@ class MedicineDosingTest {
 
     @Test
     void should_try_another_dose_medicine_when_pump_is_not_working() {
+        when(medicinePump.getTimeSinceLastDoseInMinutes(any())).thenReturn(31);
         when(healthMonitor.getSystolicBloodPressure()).thenReturn(89);
         doThrow(DoseUnsuccessfulException.class).doNothing().when(medicinePump).dose(any());
 
@@ -80,6 +83,7 @@ class MedicineDosingTest {
 
     @Test
     void should_send_alarm_and_dose_three_pressure_raising_medicine_when_blood_pressure_below_55() {
+        when(medicinePump.getTimeSinceLastDoseInMinutes(any())).thenReturn(31);
         when(healthMonitor.getSystolicBloodPressure()).thenReturn(54);
 
         controller.checkHealthAndApplyMedicine();
